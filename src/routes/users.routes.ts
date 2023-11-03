@@ -4,6 +4,7 @@ import { access } from 'fs'
 import {
   emailVerifyController,
   forgotPasswordController,
+  getMeController,
   loginController,
   logoutTokenController,
   registerController,
@@ -42,17 +43,13 @@ usersRouter.post(
   wrapAsync(verifyForgotPasswordTokenController)
 )
 
-/*
-des: reset password
-path: '/reset-password'
-method: POST
-Header: không cần, vì  ngta quên mật khẩu rồi, thì sao mà đăng nhập để có authen đc
-body: {forgot_password_token: string, password: string, confirm_password: string}
-*/
 usersRouter.post(
   '/reset-password',
   resetPasswordValidator,
   verifyForgotPasswordTokenValidator,
   wrapAsync(resetPasswordController)
 )
+
+usersRouter.get('/me', accessTokenValidator, wrapAsync(getMeController))
+
 export default usersRouter
