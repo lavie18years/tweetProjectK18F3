@@ -3,11 +3,20 @@ import User from '~/models/schemas/User.schema'
 import databaseService from '~/services/database.services'
 import userService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
-import { ForgotPasswordReqBody, RegisterReqBody, TokenPayload, VerifyEmailReqBody, loginReqBody, logoutReqBody } from '~/models/requests/User.requests'
+import {
+  ForgotPasswordReqBody,
+  RegisterReqBody,
+  ResetPasswordReqBody,
+  TokenPayload,
+  VerifyEmailReqBody,
+  loginReqBody,
+  logoutReqBody
+} from '~/models/requests/User.requests'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/messages'
 import { UserVerifyStatus } from '~/constants/enums'
 import HTTP_STATUS from '~/constants/httpStatus'
+import { result } from 'lodash'
 
 export const loginController = async (req: Request<ParamsDictionary, any, loginReqBody>, res: Response) => {
   // nếu nó vào đc đây, tức là nó đã đăng nhập thành công
@@ -100,4 +109,17 @@ export const verifyForgotPasswordTokenController = async (req: Request, res: Res
   return res.json({
     message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_TOKEN_SUCCESS
   })
+}
+
+export const resetPasswordController = async (
+  req: Request<ParamsDictionary, any, ResetPasswordReqBody>,
+  res: Response
+) => {
+  // muốn đổi mật khẩu thì cần user_id và password mới
+  const { user_id } = req.decoded_forgot_password_token as TokenPayload
+  const { password } = req.body
+  //vào database tìm user thông qua user_id này và cập nhật lại password mới
+  //vì vào database nên ta sẽ code ở user.services
+  const result = await userService.resetPassword(user_id, password) //ta chưa code resetPassword
+  return res.json(result)
 }
